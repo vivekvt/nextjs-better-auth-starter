@@ -63,7 +63,7 @@ bun dev
 
 Your application will be available at [http://localhost:3000](http://localhost:3000).
 
-### Contributing
+## Contributing
 
 Contributions are welcome! Feel free to:
 
