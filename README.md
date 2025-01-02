@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js 15 Starter Template
+
+A powerful starter template for Next.js 15 projects, featuring:
+
+- **Better Auth**: Seamless and secure authentication.
+- **Drizzle ORM**: Elegant and type-safe database management.
+- **Supabase**: Robust backend services for your application.
+
+## Features
+
+- Pre-configured authentication with Better Auth.
+- Integrated Drizzle ORM for easy database interactions.
+- Ready-to-use Supabase setup.
+- Scalable and modern tech stack.
 
 ## Getting Started
 
-First, run the development server:
+Follow these steps to set up the project:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+### 1\. Clone the Repository
+
+```
+git clone https://github.com/your-username/nextjs15-starter.git
+cd nextjs-15
+```
+
+### 2\. Install Dependencies
+
+Make sure you have Node.js installed, then run:
+
+```
+bun install
+```
+
+### 3\. Configure Environment Variables
+
+Copy the env.example file to create your .env file:
+
+```
+cp env.example .env
+```
+
+Edit the `.env` file with your project's specific configurations:
+
+- Add your Supabase keys and URLs.
+- Configure any required authentication secrets.
+
+### 4\. Setup Drizzle ORM
+
+Generate your Drizzle schema and push into your database:
+
+```
+bun db:push
+```
+
+### 5\. Start the Development Server
+
+Run the development server:
+
+```
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Your application will be available at [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Contributing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Contributions are welcome! Feel free to:
 
-## Learn More
+- Open issues for bugs or feature requests.
+- Submit pull requests to improve the project.
 
-To learn more about Next.js, take a look at the following resources:
+### License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License.
