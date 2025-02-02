@@ -12,7 +12,7 @@ import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "@/lib/auth-client";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -24,6 +24,8 @@ import { AtSign } from "lucide-react";
 
 export default function SignInForm() {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
   const form = useForm<SignInValues>({
     resolver: zodResolver(SignInSchema),
     defaultValues: {
@@ -40,7 +42,7 @@ export default function SignInForm() {
         console.log("SIGN_IN:", response.error.message);
         toast.error(response.error.message);
       } else {
-        redirect("/dashboard");
+        router.push("/");
       }
     });
   }
