@@ -1,8 +1,7 @@
 import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import { gender, role } from ".";
-import { z } from "zod";
+import { gender, role, dbSchema } from ".";
 
-export const user = pgTable("user", {
+export const user = dbSchema.table("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   username: text("username").unique(),
