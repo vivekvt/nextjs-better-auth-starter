@@ -12,7 +12,5 @@ export async function getMe(): Promise<UserType | null | undefined> {
     return null;
   }
 
-  return await db.query.user.findFirst({
-    where: eq(user.id, session.user.id),
-  });
+  return (await db.select().from(user).where(eq(user.id, session.user.id)))[0];
 }

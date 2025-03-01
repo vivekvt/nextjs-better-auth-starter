@@ -1,12 +1,14 @@
 import { text, timestamp } from "drizzle-orm/pg-core";
-import { user, dbSchema } from ".";
+import { dbSchema, user } from ".";
 
 export const session = dbSchema.table("session", {
   id: text("id").primaryKey(),
   expiresAt: timestamp("expiresAt").notNull(),
   token: text("token").notNull().unique(),
-  createdAt: timestamp("createdAt").notNull(),
-  updatedAt: timestamp("updatedAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt")
+    .defaultNow()
+    .$onUpdate(() => new Date()),
   ipAddress: text("ipAddress"),
   userAgent: text("userAgent"),
   userId: text("userId")
