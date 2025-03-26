@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import type { Session } from "better-auth/types";
-import { betterFetch } from "@better-fetch/fetch";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 
 import {
   apiAuthPrefix,
@@ -10,16 +10,9 @@ import {
 } from "./routes";
 
 export async function middleware(request: NextRequest) {
-  const { data: session } = await betterFetch<Session>(
-    "/api/auth/get-session",
-    {
-      baseURL: request.nextUrl.origin,
-      headers: {
-        //get the cookie from the request
-        cookie: request.headers.get("cookie") || "",
-      },
-    },
-  );
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   const isApiAuth = request.nextUrl.pathname.startsWith(apiAuthPrefix);
 
