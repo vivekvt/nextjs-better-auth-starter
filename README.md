@@ -20,8 +20,8 @@ Follow these steps to set up the project:
 ### 1\. Clone the Repository
 
 ```
-git clone https://github.com/your-username/nextjs15-starter.git
-cd nextjs-15
+git clone https://github.com/JabirDev/nextjs-better-auth.git
+cd nextjs-better-auth
 ```
 
 ### 2\. Install Dependencies
