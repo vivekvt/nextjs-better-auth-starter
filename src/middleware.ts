@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { getSessionCookie } from "better-auth/cookies";
 
 import {
   apiAuthPrefix,
@@ -10,9 +9,7 @@ import {
 } from "./routes";
 
 export async function middleware(request: NextRequest) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = getSessionCookie(request);
 
   const isApiAuth = request.nextUrl.pathname.startsWith(apiAuthPrefix);
 
