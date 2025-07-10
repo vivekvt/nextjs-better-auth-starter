@@ -3,7 +3,6 @@
 import {
   Form,
   FormControl,
-  FormLabel,
   FormField,
   FormItem,
   FormMessage,
@@ -21,7 +20,6 @@ import InputStartIcon from "../components/input-start-icon";
 import InputPasswordContainer from "../components/input-password";
 import { cn } from "@/lib/utils";
 import { AtSign, MailIcon, UserIcon } from "lucide-react";
-import { Label } from "@/components/ui/label";
 
 export default function SignUpForm() {
   const [isPending, startTransition] = useTransition();
@@ -55,11 +53,6 @@ export default function SignUpForm() {
       form.formState.errors[fieldName] &&
         "border-destructive/80 text-destructive focus-visible:border-destructive/80 focus-visible:ring-destructive/20",
     );
-
-  const genderItems = [
-    { id: "radio-male", value: "male", label: "Male" },
-    { id: "radio-female", value: "female", label: "Female" },
-  ];
 
   return (
     <Form {...form}>
