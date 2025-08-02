@@ -1,8 +1,7 @@
-import { boolean, text, timestamp } from "drizzle-orm/pg-core";
-import { gender, dbSchema, role } from ".";
-import { z } from "zod";
+import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { role, genderEnum } from "..";
 
-export const user = dbSchema.table("user", {
+export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   username: text("username").unique(),
@@ -11,7 +10,7 @@ export const user = dbSchema.table("user", {
   emailVerified: boolean("emailVerified").notNull(),
   image: text("image"),
   role: role("role").default("member").notNull(),
-  gender: gender("gender"),
+  gender: genderEnum("gender"),
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()
@@ -19,12 +18,3 @@ export const user = dbSchema.table("user", {
 });
 
 export type UserType = typeof user.$inferSelect;
-
-export const signInSchema = z.object({
-  username: z.string().min(4, { message: "Username is required" }),
-  password: z
-    .string()
-    .min(6, { message: "Password lenght at least 6 characters" }),
-});
-
-export type SignInValues = z.infer<typeof signInSchema>;

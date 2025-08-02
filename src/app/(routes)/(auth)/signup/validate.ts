@@ -38,6 +38,9 @@ export const SignUpSchema = z
     confirmPassword: z.string().min(8, {
       message: "Must be at least 8 characters",
     }),
+    gender: z.enum(["male", "female"], {
+      message: "Gender must be either 'male' or 'female'.",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",

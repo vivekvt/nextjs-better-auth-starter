@@ -1,7 +1,7 @@
-import { text, timestamp } from "drizzle-orm/pg-core";
-import { dbSchema, user } from ".";
+import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { user } from "..";
 
-export const session = dbSchema.table("session", {
+export const session = pgTable("session", {
   id: text("id").primaryKey(),
   expiresAt: timestamp("expiresAt").notNull(),
   token: text("token").notNull().unique(),
