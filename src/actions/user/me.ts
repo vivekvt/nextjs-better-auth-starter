@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { user, UserType } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/server";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 
