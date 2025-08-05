@@ -8,90 +8,206 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signUp } from "@/lib/auth/client";
-import { redirect } from "next/navigation";
+import { signIn, emailOtp } from "@/lib/auth/client";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { SignUpSchema, SignUpValues } from "./validate";
+import {
+  SignUpEmailSchema,
+  SignUpEmailValues,
+  SignUpOTPSchema,
+  SignUpOTPValues,
+} from "./validate";
 import InputStartIcon from "../components/input-start-icon";
-import InputPasswordContainer from "../components/input-password";
 import { cn } from "@/lib/utils";
-import { AtSign, MailIcon, UserIcon } from "lucide-react";
+import { MailIcon, UserIcon, Hash } from "lucide-react";
 import { GenderRadioGroup } from "../components/gender-radio-group";
 
 export default function SignUpForm() {
   const [isPending, startTransition] = useTransition();
-  const form = useForm<SignUpValues>({
-    resolver: zodResolver(SignUpSchema),
+  const [step, setStep] = useState<"details" | "otp">("details");
+  const [userDetails, setUserDetails] = useState<SignUpEmailValues | null>(
+    null,
+  );
+  const router = useRouter();
+
+  const detailsForm = useForm<SignUpEmailValues>({
+    resolver: zodResolver(SignUpEmailSchema),
     defaultValues: {
       name: "",
       email: "",
-      username: "",
-      password: "",
-      confirmPassword: "",
+      gender: undefined,
     },
   });
 
-  function onSubmit(data: SignUpValues) {
-    startTransition(async () => {
-      console.log("submit data:", data);
-      const response = await signUp.email(data);
+  const otpForm = useForm<SignUpOTPValues>({
+    resolver: zodResolver(SignUpOTPSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      gender: undefined,
+      otp: "",
+    },
+  });
 
-      if (response.error) {
-        console.log("SIGN_UP:", response.error.status);
-        toast.error(response.error.message);
-      } else {
-        redirect("/");
+  function onDetailsSubmit(data: SignUpEmailValues) {
+    startTransition(async () => {
+      try {
+        const response = await emailOtp.sendVerificationOtp({
+          email: data.email,
+          type: "sign-in",
+        });
+
+        if (response.error) {
+          toast.error(response.error.message);
+        } else {
+          setUserDetails(data);
+          otpForm.setValue("name", data.name);
+          otpForm.setValue("email", data.email);
+          otpForm.setValue("gender", data.gender);
+          setStep("otp");
+          toast.success("Verification code sent to your email!");
+        }
+      } catch (error) {
+        toast.error("Failed to send verification code");
       }
     });
   }
 
-  const getInputClassName = (fieldName: keyof SignUpValues) =>
+  function onOTPSubmit(data: SignUpOTPValues) {
+    startTransition(async () => {
+      try {
+        const response = await signIn.emailOtp({
+          email: data.email,
+          otp: data.otp,
+        });
+
+        if (response.error) {
+          toast.error(response.error.message);
+        } else {
+          toast.success("Account created successfully!");
+          router.push("/");
+        }
+      } catch (error) {
+        toast.error("Invalid verification code");
+      }
+    });
+  }
+
+  const getDetailsInputClassName = (fieldName: keyof SignUpEmailValues) =>
     cn(
-      form.formState.errors[fieldName] &&
+      detailsForm.formState.errors[fieldName] &&
         "border-destructive/80 text-destructive focus-visible:border-destructive/80 focus-visible:ring-destructive/20",
     );
 
+  const getOTPInputClassName = (fieldName: keyof SignUpOTPValues) =>
+    cn(
+      otpForm.formState.errors[fieldName] &&
+        "border-destructive/80 text-destructive focus-visible:border-destructive/80 focus-visible:ring-destructive/20",
+    );
+
+  if (step === "details") {
+    return (
+      <Form {...detailsForm}>
+        <form
+          onSubmit={detailsForm.handleSubmit(onDetailsSubmit)}
+          className="z-50 my-8 flex w-full flex-col gap-5"
+        >
+          <FormField
+            control={detailsForm.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <InputStartIcon icon={UserIcon}>
+                    <Input
+                      placeholder="Full Name"
+                      className={cn(
+                        "peer ps-9",
+                        getDetailsInputClassName("name"),
+                      )}
+                      disabled={isPending}
+                      {...field}
+                    />
+                  </InputStartIcon>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={detailsForm.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <InputStartIcon icon={MailIcon}>
+                    <Input
+                      placeholder="Email"
+                      className={cn(
+                        "peer ps-9",
+                        getDetailsInputClassName("email"),
+                      )}
+                      disabled={isPending}
+                      {...field}
+                    />
+                  </InputStartIcon>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={detailsForm.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Gender</FormLabel>
+                <GenderRadioGroup
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button type="submit" disabled={isPending} className="mt-5 w-full">
+            {isPending ? "Sending..." : "Send Verification Code"}
+          </Button>
+        </form>
+      </Form>
+    );
+  }
+
   return (
-    <Form {...form}>
+    <Form {...otpForm}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={otpForm.handleSubmit(onOTPSubmit)}
         className="z-50 my-8 flex w-full flex-col gap-5"
       >
+        <div className="text-muted-foreground mb-4 text-center text-sm">
+          We sent a verification code to <strong>{userDetails?.email}</strong>
+        </div>
+
         <FormField
-          control={form.control}
-          name="name"
+          control={otpForm.control}
+          name="otp"
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <InputStartIcon icon={UserIcon}>
+                <InputStartIcon icon={Hash}>
                   <Input
-                    placeholder="Name"
-                    className={cn("peer ps-9", getInputClassName("name"))}
+                    placeholder="Enter 6-digit code"
+                    className={cn("peer ps-9", getOTPInputClassName("otp"))}
                     disabled={isPending}
-                    {...field}
-                  />
-                </InputStartIcon>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <InputStartIcon icon={MailIcon}>
-                  <Input
-                    placeholder="Email"
-                    className={cn("peer ps-9", getInputClassName("email"))}
-                    disabled={isPending}
+                    maxLength={6}
                     {...field}
                   />
                 </InputStartIcon>
@@ -101,84 +217,30 @@ export default function SignUpForm() {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <InputStartIcon icon={AtSign}>
-                  <Input
-                    placeholder="Username"
-                    className={cn("peer ps-9", getInputClassName("username"))}
-                    disabled={isPending}
-                    {...field}
-                  />
-                </InputStartIcon>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="flex gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setStep("details")}
+            className="flex-1"
+            disabled={isPending}
+          >
+            Back
+          </Button>
+          <Button type="submit" disabled={isPending} className="flex-1">
+            {isPending ? "Creating Account..." : "Create Account"}
+          </Button>
+        </div>
 
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <InputPasswordContainer>
-                  <Input
-                    className={cn("pe-9", getInputClassName("password"))}
-                    placeholder="Password"
-                    disabled={isPending}
-                    {...field}
-                  />
-                </InputPasswordContainer>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <InputPasswordContainer>
-                  <Input
-                    className={cn("pe-9", getInputClassName("confirmPassword"))}
-                    placeholder="Confirm Password"
-                    disabled={isPending}
-                    {...field}
-                  />
-                </InputPasswordContainer>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Gender */}
-        <FormField
-          control={form.control}
-          name="gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gender</FormLabel>
-              <GenderRadioGroup
-                value={field.value ?? ""}
-                onChange={field.onChange}
-              />
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <Button type="submit" disabled={isPending} className="mt-5 w-full">
-          Sign Up
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          disabled={isPending}
+          onClick={() => userDetails && onDetailsSubmit(userDetails)}
+          className="text-sm"
+        >
+          Resend code
         </Button>
       </form>
     </Form>

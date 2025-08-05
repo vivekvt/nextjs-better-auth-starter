@@ -1,50 +1,30 @@
 import { z } from "zod";
 
-const disallowedUsernamePatterns = [
-  "admin",
-  "superuser",
-  "superadmin",
-  "root",
-  "jabirdev",
-  "cakfan",
-  "withcakfan",
-];
+export const SignUpEmailSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .email({ message: "Invalid email address" }),
+  name: z.string().min(2, { message: "Must be at least 2 characters" }),
+  gender: z.enum(["male", "female"], {
+    message: "Gender must be either 'male' or 'female'.",
+  }),
+});
 
-export const SignUpSchema = z
-  .object({
-    email: z
-      .string()
-      .min(1, { message: "Email is required" })
-      .email({ message: "Invalid email address" }),
-    name: z.string().min(4, { message: "Must be at least 4 characters" }),
-    username: z
-      .string()
-      .min(4, { message: "Must be at least 4 characters" })
-      .regex(/^[a-zA-Z0-0_-]+$/, "Only letters, numbers, - and _ allowed")
-      .refine(
-        (username) => {
-          for (const pattern of disallowedUsernamePatterns) {
-            if (username.toLowerCase().includes(pattern)) {
-              return false;
-            }
-          }
-          return true;
-        },
-        { message: "Username contains disallowed words" },
-      ),
-    password: z.string().min(8, {
-      message: "Must be at least 8 characters",
-    }),
-    confirmPassword: z.string().min(8, {
-      message: "Must be at least 8 characters",
-    }),
-    gender: z.enum(["male", "female"], {
-      message: "Gender must be either 'male' or 'female'.",
-    }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
+export const SignUpOTPSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .email({ message: "Invalid email address" }),
+  name: z.string().min(2, { message: "Must be at least 2 characters" }),
+  gender: z.enum(["male", "female"], {
+    message: "Gender must be either 'male' or 'female'.",
+  }),
+  otp: z
+    .string()
+    .min(6, { message: "Please enter the 6-digit code" })
+    .max(6, { message: "Code must be 6 digits" }),
+});
 
-export type SignUpValues = z.infer<typeof SignUpSchema>;
+export type SignUpEmailValues = z.infer<typeof SignUpEmailSchema>;
+export type SignUpOTPValues = z.infer<typeof SignUpOTPSchema>;
