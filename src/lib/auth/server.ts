@@ -41,13 +41,5 @@ export const auth = betterAuth({
       disableSignUp: false, // Allow auto sign-up on verification
     }),
   ],
-  user: {
-    additionalFields: {
-      gender: {
-        type: "string",
-        required: false,
-        input: true,
-      },
-    },
-  },
+
 });
