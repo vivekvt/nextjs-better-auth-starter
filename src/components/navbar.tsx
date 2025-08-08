@@ -81,6 +81,13 @@ export default function Navbar() {
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/dashboard" className="flex items-center">
+                    <Shield className="mr-3 h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Link href="/profile" className="flex items-center">
                     <User className="mr-3 h-4 w-4" />
                     <span>Profile</span>

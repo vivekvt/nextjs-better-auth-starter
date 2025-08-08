@@ -27,7 +27,7 @@ export default function CompleteProfileForm() {
 
       if (result.success) {
         toast.success("Profile completed successfully!");
-        router.push("/");
+        router.push("/dashboard");
       } else {
         toast.error(result.error);
       }

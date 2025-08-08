@@ -71,7 +71,7 @@ export default function SignInForm() {
         toast.error(response.error.message);
       } else {
         toast.success("Signed in successfully!");
-        router.push("/");
+        router.push("/dashboard");
       }
     });
   };

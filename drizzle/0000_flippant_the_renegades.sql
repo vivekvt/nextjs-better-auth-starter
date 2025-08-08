@@ -12,7 +12,7 @@ CREATE TABLE "session" (
 --> statement-breakpoint
 CREATE TABLE "user" (
 	"id" text PRIMARY KEY NOT NULL,
-	"name" text NOT NULL,
+	"name" text DEFAULT '',
 	"email" text NOT NULL,
 	"emailVerified" boolean DEFAULT false NOT NULL,
 	"image" text,
