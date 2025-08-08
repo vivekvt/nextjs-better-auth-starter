@@ -6,6 +6,8 @@ import {
   authRoutes,
   DEFAULT_LOGIN_REDIRECT,
   publicRoutes,
+  profileCompletionRoutes,
+  PROFILE_COMPLETION_REDIRECT,
 } from "./routes";
 
 export async function middleware(request: NextRequest) {
@@ -19,6 +21,12 @@ export async function middleware(request: NextRequest) {
     return authRoutes.some((path) => request.nextUrl.pathname.startsWith(path));
   };
 
+  const isProfileCompletionRoute = () => {
+    return profileCompletionRoutes.some((path) =>
+      request.nextUrl.pathname.startsWith(path),
+    );
+  };
+
   if (isApiAuth) {
     return NextResponse.next();
   }
@@ -28,6 +36,14 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(
         new URL(DEFAULT_LOGIN_REDIRECT, request.url),
       );
+    }
+    return NextResponse.next();
+  }
+
+  // Allow access to profile completion routes for authenticated users
+  if (isProfileCompletionRoute()) {
+    if (!session) {
+      return NextResponse.redirect(new URL("/login", request.url));
     }
     return NextResponse.next();
   }
