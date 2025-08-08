@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1754149038462,
-      "tag": "0000_slim_the_fallen",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1754383387669,
-      "tag": "0001_lethal_marvel_apes",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1754384581447,
-      "tag": "0002_aromatic_tyrannus",
+      "when": 1754661658971,
+      "tag": "0000_colorful_stryfe",
       "breakpoints": true
     }
   ]

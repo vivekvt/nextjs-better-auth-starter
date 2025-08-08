@@ -63,13 +63,14 @@ export default function Navbar() {
                           alt={session.user.name ?? ""}
                         />
                       )}
-                      <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                        {session.user.name?.[0]?.toUpperCase() ?? "U"}
+                      <AvatarFallback className="bg-muted">
+                        {/* {session.user.name?.[0]?.toUpperCase() ?? "U"} */}
+                        <User className="h-3 w-3" />
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm leading-none font-semibold">
-                        {session.user.name ?? "User"}
+                        {session.user.name ? session.user.name : "User"}
                       </p>
                       <p className="text-muted-foreground text-xs leading-none">
                         {session.user.email}
