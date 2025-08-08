@@ -1,177 +1,111 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
-import { UserIcon, LogOut, Menu, X, User, ChevronDown } from "lucide-react";
-import { useSession, signOut } from "@/lib/auth/client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { signOut, useSession } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Menu, User, LogOut, Shield, ChevronDown } from "lucide-react";
+import Link from "next/link";
+import { appConfig } from "@/lib/appConfig";
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { data: session } = useSession();
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const handleSignOut = async () => {
-    await signOut();
-    setIsMenuOpen(false);
-    setIsDropdownOpen(false);
-  };
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-  };
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const closeDropdown = () => {
-    setIsDropdownOpen(false);
-  };
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  if (!session) {
-    return null; // Don't show navbar if user is not authenticated
-  }
+  const { data: session, isPending } = useSession();
 
   return (
-    <nav className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-b backdrop-blur">
-      <div className="flex h-14 items-center px-4">
-        <div className="mr-4 hidden md:flex">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <span className="font-bold">NextJS Auth</span>
-          </Link>
-        </div>
-
-        {/* Mobile menu button */}
-        <div className="flex md:hidden">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </Button>
-        </div>
-
-        {/* Desktop logo */}
-        <div className="flex flex-1 justify-center md:hidden">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="font-bold">NextJS Auth</span>
-          </Link>
-        </div>
-
-        {/* Desktop navigation */}
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className="w-full flex-1 md:w-auto md:flex-none">
-            {/* Add navigation items here if needed */}
+    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 border-border/40 w-full">
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 items-center justify-between">
+          <div className="flex items-center space-x-8">
+            <Link href="/" className="group flex items-center space-x-3">
+              <span className="bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-xl font-bold text-transparent dark:from-white dark:to-gray-300">
+                {appConfig.name}
+              </span>
+            </Link>
           </div>
-          <div className="hidden md:flex items-center">
-            <div className="relative" ref={dropdownRef}>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleDropdown}
-                className="flex items-center space-x-2"
-              >
-                <UserIcon className="h-4 w-4" />
-                <span className="max-w-32 truncate">{session.user.name}</span>
-                <ChevronDown className={cn(
-                  "h-4 w-4 transition-transform duration-200",
-                  isDropdownOpen && "rotate-180"
-                )} />
-              </Button>
 
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-background border rounded-md shadow-lg z-50">
-                  <div className="py-1">
-                    <Link
-                      href="/profile"
-                      className="flex items-center px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
-                      onClick={closeDropdown}
-                    >
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </Link>
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full flex items-center px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground text-left"
-                    >
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
-                    </button>
-                  </div>
-                </div>
-              )}
+          {isPending ? (
+            <div className="flex items-center space-x-2">
+              <div className="h-8 w-8 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700" />
             </div>
-          </div>
+          ) : session ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Menu />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-64"
+                align="end"
+                forceMount
+                sideOffset={8}
+              >
+                <DropdownMenuLabel className="p-2 font-normal">
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="h-6 w-6">
+                      {session.user.image && (
+                        <AvatarImage
+                          src={session.user.image}
+                          alt={session.user.name ?? ""}
+                        />
+                      )}
+                      <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                        {session.user.name?.[0]?.toUpperCase() ?? "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm leading-none font-semibold">
+                        {session.user.name ?? "User"}
+                      </p>
+                      <p className="text-muted-foreground text-xs leading-none">
+                        {session.user.email}
+                      </p>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/profile" className="flex items-center">
+                    <User className="mr-3 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  onClick={() => signOut()}
+                  className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700 dark:focus:bg-red-950"
+                >
+                  <LogOut className="mr-3 h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="flex items-center space-x-3">
+              <Button variant="outline" asChild>
+                <Link href="/login">Sign In</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="border-t md:hidden">
-          <div className="space-y-1 px-2 pt-2 pb-3">
-            <div className="flex items-center space-x-3 px-3 py-2 text-sm font-medium">
-              <UserIcon className="h-5 w-5" />
-              <div className="flex flex-col">
-                <span className="font-semibold">{session.user.name}</span>
-                <span className="text-muted-foreground text-xs">
-                  {session.user.email}
-                </span>
-              </div>
-            </div>
-            <div className="bg-border mx-3 my-2 h-px" />
-            <Link
-              href="/profile"
-              className={cn(
-                "hover:bg-accent hover:text-accent-foreground block rounded-md px-3 py-2 text-base font-medium",
-              )}
-              onClick={closeMenu}
-            >
-              <div className="flex items-center space-x-2">
-                <User className="h-4 w-4" />
-                <span>Profile</span>
-              </div>
-            </Link>
-            <button
-              onClick={handleSignOut}
-              className={cn(
-                "hover:bg-accent hover:text-accent-foreground block w-full rounded-md px-3 py-2 text-left text-base font-medium",
-              )}
-            >
-              <div className="flex items-center space-x-2">
-                <LogOut className="h-4 w-4" />
-                <span>Sign Out</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      )}
-    </nav>
+    </header>
   );
 }

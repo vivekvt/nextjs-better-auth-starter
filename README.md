@@ -1,75 +1,58 @@
-# Next.js 15 Starter Template
+# Next.js Better Auth
 
-A powerful starter template for Next.js 15 projects, featuring:
-
-- **Better Auth**: Seamless and secure authentication.
-- **Drizzle ORM**: Elegant and type-safe database management.
-- **Supabase**: Robust backend services for your application.
+A modern authentication starter template built with Next.js 15, Better Auth, and Drizzle ORM.
 
 ## Features
 
-- Pre-configured authentication with Better Auth.
-- Integrated Drizzle ORM for easy database interactions.
-- Ready-to-use Supabase setup.
-- Scalable and modern tech stack.
+- 🔐 Authentication with Better Auth
+- 📱 Email/Password login
+- 👤 User profiles
+- 🗄️ PostgreSQL with Drizzle ORM
+- 🎨 Modern UI with Tailwind CSS and Radix UI
+- ✨ TypeScript support
 
-## Getting Started
+## Quick Start
 
-Follow these steps to set up the project:
+1. **Clone and install dependencies**
 
-### 1\. Clone the Repository
+   ```bash
+   npm install
+   ```
 
-```
-git clone https://github.com/JabirDev/nextjs-better-auth.git
-cd nextjs-better-auth
-```
+2. **Set up environment variables**
 
-### 2\. Install Dependencies
+   ```bash
+   cp env.example .env.local
+   ```
 
-Make sure you have Node.js installed, then run:
+   Fill in your database and API keys.
 
-```
-bun install
-```
+3. **Set up database**
 
-### 3\. Configure Environment Variables
+   ```bash
+   npm run db:generate
+   npm run db:migrate
+   ```
 
-Copy the env.example file to create your .env file:
+4. **Run development server**
+   ```bash
+   npm run dev
+   ```
 
-```
-cp env.example .env
-```
+Visit [http://localhost:3000](http://localhost:3000) to see your app.
 
-Edit the `.env` file with your project's specific configurations:
+## Scripts
 
-- Add your Supabase keys and URLs.
-- Configure any required authentication secrets.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run db:generate` - Generate database migrations
+- `npm run db:migrate` - Apply database migrations
+- `npm run db:studio` - Open Drizzle Studio
 
-### 4\. Setup Drizzle ORM
+## Tech Stack
 
-Generate your Drizzle schema and push into your database:
-
-```
-bun db:push
-```
-
-### 5\. Start the Development Server
-
-Run the development server:
-
-```
-bun dev
-```
-
-Your application will be available at [http://localhost:3000](http://localhost:3000).
-
-## Contributing
-
-Contributions are welcome! Feel free to:
-
-- Open issues for bugs or feature requests.
-- Submit pull requests to improve the project.
-
-### License
-
-This project is licensed under the MIT License.
+- **Framework:** Next.js 15
+- **Authentication:** Better Auth
+- **Database:** PostgreSQL + Drizzle ORM
+- **Styling:** Tailwind CSS, Shadcn

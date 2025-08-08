@@ -14,8 +14,10 @@ export const SignInOTPSchema = z.object({
     .email({ message: "Invalid email address" }),
   otp: z
     .string()
-    .min(6, { message: "Please enter the 6-digit code" })
-    .max(6, { message: "Code must be 6 digits" }),
+    .length(6, { message: "Verification code must be exactly 6 digits" })
+    .regex(/^\d{6}$/, {
+      message: "Verification code must contain only numbers",
+    }),
 });
 
 export type SignInEmailValues = z.infer<typeof SignInEmailSchema>;

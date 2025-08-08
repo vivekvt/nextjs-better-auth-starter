@@ -15,20 +15,43 @@ export const auth = betterAuth({
           await resend.emails.send({
             from: senderEmail!,
             to: email,
-            subject:
-              type === "sign-in"
-                ? "Your Sign-in Code"
-                : "Your Verification Code",
+            subject: "Your Sign-in Code",
             html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2>Your verification code</h2>
-                <p>Enter this code to ${type === "sign-in" ? "sign in" : "verify your email"}:</p>
-                <div style="background-color: #f5f5f5; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 20px 0;">
-                  ${otp}
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Your Sign-in Code</title>
+              </head>
+              <body style="margin: 0; padding: 20px; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+                <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; padding: 32px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                  
+                  <div style="text-align: center; margin-bottom: 32px;">
+                    <h1 style="color: #1f2937; font-size: 24px; font-weight: 600; margin: 0;">
+                      Your Sign-in Code
+                    </h1>
+                    <p style="color: #6b7280; font-size: 16px; margin: 8px 0 0;">
+                      Enter this code to sign in to your account
+                    </p>
+                  </div>
+                  
+                  <div style="background-color: #f9fafb; border: 2px solid #e5e7eb; border-radius: 12px; padding: 24px; text-align: center; margin: 24px 0;">
+                    <div style="font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #111827; font-family: 'Courier New', monospace;">
+                      ${otp}
+                    </div>
+                  </div>
+                  
+                  <div style="text-align: center; color: #6b7280; font-size: 14px;">
+                    <p style="margin: 16px 0 0;">
+                      This code expires in 5 minutes.<br>
+                      If you didn't request this, please ignore this email.
+                    </p>
+                  </div>
+                  
                 </div>
-                <p>This code will expire in 5 minutes.</p>
-                <p>If you didn't request this code, please ignore this email.</p>
-              </div>
+              </body>
+              </html>
             `,
           });
         } catch (error) {
@@ -41,5 +64,4 @@ export const auth = betterAuth({
       disableSignUp: false, // Allow auto sign-up on verification
     }),
   ],
-
 });

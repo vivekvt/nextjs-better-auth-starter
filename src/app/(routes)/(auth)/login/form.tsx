@@ -1,12 +1,5 @@
 "use client";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +7,7 @@ import { signIn, emailOtp } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { OTPInput } from "@/components/ui/otp-input";
 import { toast } from "sonner";
 import {
   SignInEmailSchema,
@@ -21,9 +15,7 @@ import {
   SignInOTPSchema,
   SignInOTPValues,
 } from "./validate";
-import InputStartIcon from "../components/input-start-icon";
-import { cn } from "@/lib/utils";
-import { MailIcon, Hash } from "lucide-react";
+import { MailIcon, ArrowLeft } from "lucide-react";
 
 export default function SignInForm() {
   const [isPending, startTransition] = useTransition();
@@ -33,167 +25,160 @@ export default function SignInForm() {
 
   const emailForm = useForm<SignInEmailValues>({
     resolver: zodResolver(SignInEmailSchema),
-    defaultValues: {
-      email: "",
-    },
+    defaultValues: { email: "" },
   });
 
   const otpForm = useForm<SignInOTPValues>({
     resolver: zodResolver(SignInOTPSchema),
-    defaultValues: {
-      email: "",
-      otp: "",
-    },
+    defaultValues: { email: "", otp: "" },
   });
 
-  function onEmailSubmit(data: SignInEmailValues) {
-    startTransition(async () => {
-      try {
-        const response = await emailOtp.sendVerificationOtp({
-          email: data.email,
-          type: "sign-in",
-        });
+  const sendOTP = async (email: string) => {
+    const response = await emailOtp.sendVerificationOtp({
+      email,
+      type: "sign-in",
+    });
 
-        if (response.error) {
-          toast.error(response.error.message);
-        } else {
-          setUserEmail(data.email);
-          otpForm.setValue("email", data.email);
-          setStep("otp");
-          toast.success("Verification code sent to your email!");
-        }
-      } catch (error) {
-        toast.error("Failed to send verification code");
+    if (response.error) {
+      toast.error(response.error.message);
+      return false;
+    }
+
+    toast.success("Verification code sent!");
+    return true;
+  };
+
+  const onEmailSubmit = (data: SignInEmailValues) => {
+    startTransition(async () => {
+      const success = await sendOTP(data.email);
+      if (success) {
+        setUserEmail(data.email);
+        otpForm.setValue("email", data.email);
+        otpForm.setValue("otp", "");
+        setStep("otp");
       }
     });
-  }
+  };
 
-  function onOTPSubmit(data: SignInOTPValues) {
+  const onOTPSubmit = (data: SignInOTPValues) => {
     startTransition(async () => {
-      try {
-        const response = await signIn.emailOtp({
-          email: data.email,
-          otp: data.otp,
-        });
+      const response = await signIn.emailOtp({
+        email: data.email,
+        otp: data.otp,
+      });
 
-        if (response.error) {
-          toast.error(response.error.message);
-        } else {
-          toast.success("Signed in successfully!");
-          router.push("/");
-        }
-      } catch (error) {
-        toast.error("Invalid verification code");
+      if (response.error) {
+        toast.error(response.error.message);
+      } else {
+        toast.success("Signed in successfully!");
+        router.push("/");
       }
     });
-  }
-
-  const getEmailInputClassName = (fieldName: keyof SignInEmailValues) =>
-    cn(
-      emailForm.formState.errors[fieldName] &&
-        "border-destructive/80 text-destructive focus-visible:border-destructive/80 focus-visible:ring-destructive/20",
-    );
-
-  const getOTPInputClassName = (fieldName: keyof SignInOTPValues) =>
-    cn(
-      otpForm.formState.errors[fieldName] &&
-        "border-destructive/80 text-destructive focus-visible:border-destructive/80 focus-visible:ring-destructive/20",
-    );
+  };
 
   if (step === "email") {
     return (
-      <Form {...emailForm}>
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-lg font-semibold">Enter your email</h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            We&apos;ll send you a verification code
+          </p>
+        </div>
+
         <form
           onSubmit={emailForm.handleSubmit(onEmailSubmit)}
-          className="z-50 my-8 flex w-full flex-col gap-5"
+          className="space-y-4"
         >
-          <FormField
-            control={emailForm.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <InputStartIcon icon={MailIcon}>
-                    <Input
-                      placeholder="Email"
-                      className={cn(
-                        "peer ps-9",
-                        getEmailInputClassName("email"),
-                      )}
-                      disabled={isPending}
-                      {...field}
-                    />
-                  </InputStartIcon>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
+          <div className="relative">
+            <MailIcon className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+            <Input
+              {...emailForm.register("email")}
+              placeholder="Enter your email"
+              type="email"
+              disabled={isPending}
+              className="pl-10"
+            />
+            {emailForm.formState.errors.email && (
+              <p className="text-destructive mt-1 text-sm">
+                {emailForm.formState.errors.email.message}
+              </p>
             )}
-          />
-          <Button type="submit" disabled={isPending} className="mt-5 w-full">
-            {isPending ? "Sending..." : "Send Verification Code"}
+          </div>
+
+          <Button type="submit" disabled={isPending} className="w-full">
+            {isPending ? "Sending..." : "Send verification code"}
           </Button>
         </form>
-      </Form>
+      </div>
     );
   }
 
   return (
-    <Form {...otpForm}>
-      <form
-        onSubmit={otpForm.handleSubmit(onOTPSubmit)}
-        className="z-50 my-8 flex w-full flex-col gap-5"
-      >
-        <div className="text-muted-foreground mb-4 text-center text-sm">
-          We sent a verification code to <strong>{userEmail}</strong>
-        </div>
+    <div className="space-y-4">
+      <div className="text-center">
+        <h2 className="text-lg font-semibold">Check your email</h2>
+        <p className="text-muted-foreground text-sm">
+          We sent a code to{" "}
+          <span className="text-foreground font-medium">{userEmail}</span>
+        </p>
+      </div>
 
-        <FormField
-          control={otpForm.control}
-          name="otp"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <InputStartIcon icon={Hash}>
-                  <Input
-                    placeholder="Enter 6-digit code"
-                    className={cn("peer ps-9", getOTPInputClassName("otp"))}
-                    disabled={isPending}
-                    maxLength={6}
-                    {...field}
-                  />
-                </InputStartIcon>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setStep("email")}
-            className="flex-1"
+      <form onSubmit={otpForm.handleSubmit(onOTPSubmit)} className="space-y-6">
+        <div>
+          <OTPInput
+            value={otpForm.watch("otp") || ""}
+            onChange={(value) => otpForm.setValue("otp", value)}
+            length={6}
+            autoFocus
             disabled={isPending}
-          >
-            Back
-          </Button>
-          <Button type="submit" disabled={isPending} className="flex-1">
-            {isPending ? "Verifying..." : "Sign In"}
-          </Button>
+          />
+          {otpForm.formState.errors.otp && (
+            <p className="text-destructive mt-2 text-center text-sm">
+              {otpForm.formState.errors.otp.message}
+            </p>
+          )}
         </div>
 
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          disabled={isPending}
-          onClick={() => onEmailSubmit({ email: userEmail })}
-          className="text-sm"
-        >
-          Resend code
-        </Button>
+        <div className="space-y-3">
+          <Button
+            type="submit"
+            disabled={isPending || (otpForm.watch("otp")?.length || 0) < 6}
+            className="w-full"
+          >
+            {isPending ? "Verifying..." : "Verify & Sign In"}
+          </Button>
+
+          <div className="flex items-center justify-between text-sm">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setStep("email")}
+              disabled={isPending}
+              className="text-muted-foreground hover:text-foreground h-auto p-0"
+            >
+              <ArrowLeft className="mr-1 h-3 w-3" />
+              Change email
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={isPending}
+              onClick={() => sendOTP(userEmail)}
+              className="text-muted-foreground hover:text-foreground h-auto p-0"
+            >
+              Resend code
+            </Button>
+          </div>
+        </div>
       </form>
-    </Form>
+
+      <div className="text-center">
+        <p className="text-muted-foreground text-xs">
+          Code expires in 5 minutes
+        </p>
+      </div>
+    </div>
   );
 }
